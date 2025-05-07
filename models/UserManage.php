@@ -69,8 +69,8 @@ class UserManage {
      *
      * @return bool
      */
-    public function send() {
-        // メールを送信するメソッド
+    public function sendQuestionnaire() {
+        // アンケートを送信するメソッド
         return true;
     }
 }

@@ -18,22 +18,23 @@ foreach ($userIds as $id) {
     $userManage = new UserManage($id); // Userクラスをインスタンス化する
     // 【上記のポイント】ループごとに作られる$userManageオブジェクトが、それぞれ1社員のオブジェクトになる
 
-    $invited = $userManage->isDistributed(); // アンケートを配布済みかどうか
-    if ($invited === false) { // アンケートをそもそも配布していなかったら配布する
-        $userManage->send();
+    $isDistributed = $userManage->isDistributed(); // アンケートを配布済みかどうか
+    if ($isDistributed === false) { // アンケートをそもそも配布していなかったら配布する
+        $userManage->sendQuestionnaire();
         echo "ユーザーID：" . $id  . "にアンケートを配布しました\n";
         continue; 
     }
 
     $answers = $userManage->getAnsweres(); // アンケートに回答済みかどうか、いつ回答したかなどを配列で取得
 
+    // 24時間以内かを確認するために現在の日時と前回配布した日を用意する
     $distributedAt = $answers['distributed_at']; // 前回の配布日時を取得
     $distributedAtDateime = new DateTime($distributedAt); // DateTimeオブジェクトに変換
     $currentDatetime = new DateTime(); // 現在時刻を作成
     $intervalInSeconds = $currentDatetime->getTimestamp() - $distributedAtDateime->getTimestamp(); // 経過時間を「秒」で取得
 
-    if ($answers['is_answer'] === false && $intervalInSeconds >= 86400) { // 未回答かつ前回の配布から24時間以上経過したか
-        $userManage->send();
+    if ($answers['is_answer'] === false && $intervalInSeconds >= 86400) { // 「未回答」かつ「前回の配布から24時間以上経過したか」
+        $userManage->sendQuestionnaire();
         echo "ユーザーID：" . $id  . "にアンケートを再配布しました\n";
         continue; 
     }
